@@ -1,4 +1,5 @@
 // src/routes/tasks.js
+
 const express = require('express');
 const { check, validationResult } = require('express-validator');
 const Task = require('../models/Task');
@@ -34,5 +35,16 @@ router.post(
     }
   }
 );
+
+router.get('/', async (req, res, next) => { // Add next parameter
+    try {
+      const tasks = await Task.find(); // Fetches all tasks for now
+      res.json(tasks);
+    } catch (err) {
+      console.error(err.message); // Keep specific log for now
+      next(err); // Pass error to central handler
+    }
+  });
+  
 
 module.exports = router;
