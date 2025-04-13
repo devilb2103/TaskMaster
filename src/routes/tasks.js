@@ -39,9 +39,9 @@ router.post(
   }
 );
 
-router.get('/', async (req, res, next) => { // Add next parameter
+router.get('/', protect, async (req, res, next) => { // Add next parameter
     try {
-      const tasks = await Task.find(); // Fetches all tasks for now
+      const tasks = await Task.find({ owner: req.user.id }); // Fetches all tasks for now
       res.json(tasks);
     } catch (err) {
       console.error(err.message); // Keep specific log for now
