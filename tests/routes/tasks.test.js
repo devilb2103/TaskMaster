@@ -70,7 +70,9 @@ describe('Task API Routes', () => {
 				.set('Authorization', `Bearer ${token}`)
 				.send({}); // Missing description
 			expect(res.statusCode).toEqual(400);
-			expect(res.body.error).toContain('Description is required');
+			expect(res.body.errors[0].msg).toContain(
+				'Task description is required and cannot be empty'
+			);
 		});
 	});
 
@@ -153,9 +155,7 @@ describe('Task API Routes', () => {
 				.get(`/api/tasks/invalidIdFormat`)
 				.set('Authorization', `Bearer ${token}`);
 			expect(res.statusCode).toEqual(404); // Or 500 if errorHandler doesn't handle CastError well
-			expect(res.body.error).toMatch(
-				/Resource not found|Cast to ObjectId failed/
-			); // Adjust based on errorHandler
+			expect(res.body.msg).toBe('Task not found (invalid ID format)');
 		});
 
 		it("should return 401 if user tries to get another user's task", async () => {
@@ -234,10 +234,7 @@ describe('Task API Routes', () => {
 				.set('Authorization', `Bearer ${token}`);
 
 			expect(res.statusCode).toEqual(200);
-			expect(res.body).toEqual({
-				success: true,
-				message: 'Task removed successfully',
-			}); // Adjust message based on controller
+			expect(res.body).toEqual({ msg: 'Task removed successfully' });
 
 			// Verify task is deleted from DB
 			const deletedTask = await Task.findById(taskId);

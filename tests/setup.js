@@ -11,6 +11,8 @@ beforeAll(async () => {
 	mongoServer = await MongoMemoryServer.create(); // Start in-memory server
 	const mongoUri = mongoServer.getUri(); // Get its connection string
 
+	mongoose.set('strictQuery', true);
+
 	// Connect Mongoose to the in-memory database
 	await mongoose.connect(mongoUri, {
 		useNewUrlParser: true,

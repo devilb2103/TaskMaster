@@ -1,7 +1,7 @@
 // tests/models/Task.test.js
 const mongoose = require('mongoose');
-const Task = require('../../models/Task');
-const User = require('../../models/User'); // Needed for owner ref
+const Task = require('../../src/models/Task'); // Corrected path
+const User = require('../../src/models/User'); // Corrected path
 
 describe('Task Model Test', () => {
 	let testUserId;

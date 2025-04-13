@@ -1,11 +1,17 @@
 // src/app.js
 // (Should match the state from the previous response for Commit 21)
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({
+	path: path.resolve(__dirname, '../.env'),
+});
 const express = require('express');
 const morgan = require('morgan'); // Assuming Commit 30 happened
-const connectDB = require('../config/db');
-const errorHandler = require('./middleware/errorHandler');
-const config = require('../config/config'); // Assuming Commit 43 or similar config setup
+const connectDB = require(path.resolve(__dirname, './config/db'));
+const errorHandler = require(path.resolve(
+	__dirname,
+	'./middleware/errorHandler'
+));
+const config = require(path.resolve(__dirname, './config/config'));
 
 // Connect to Database
 connectDB();

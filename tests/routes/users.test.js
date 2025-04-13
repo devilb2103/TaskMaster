@@ -44,7 +44,7 @@ describe('User API Routes', () => {
 				.send(userData);
 
 			expect(res.statusCode).toEqual(400);
-			expect(res.body.error).toContain('Duplicate field value entered'); // Based on improved errorHandler
+			expect(res.body.errors[0].msg).toContain('User already exists'); // Based on improved errorHandler
 		});
 
 		it('should return 400 for invalid input data (e.g., short password)', async () => {
@@ -54,7 +54,7 @@ describe('User API Routes', () => {
 				.send(invalidData);
 
 			expect(res.statusCode).toEqual(400);
-			expect(res.body.error).toContain('6 or more characters'); // Based on improved errorHandler or validator response
+			expect(res.body.errors[0].msg).toContain('6 or more characters'); // Based on improved errorHandler or validator response
 		});
 
 		it('should return 400 if name is missing', async () => {
@@ -66,7 +66,7 @@ describe('User API Routes', () => {
 				.post('/api/users/register')
 				.send(invalidData);
 			expect(res.statusCode).toEqual(400);
-			expect(res.body.error).toContain('Name is required');
+			expect(res.body.errors[0].msg).toContain('Name is required');
 		});
 	});
 
@@ -94,20 +94,18 @@ describe('User API Routes', () => {
 
 			expect(res.statusCode).toEqual(401); // Use 401 for auth failures
 			expect(res.body).not.toHaveProperty('token');
-			expect(res.body.error).toContain('Invalid Credentials');
+			expect(res.body.errors[0].msg).toContain('Invalid credentials');
 		});
 
 		it('should return 401 for non-existent email', async () => {
-			const res = await request(app)
-				.post('/api/users/login')
-				.send({
-					email: 'nosuchuser@example.com',
-					password: 'password123',
-				});
+			const res = await request(app).post('/api/users/login').send({
+				email: 'nosuchuser@example.com',
+				password: 'password123',
+			});
 
 			expect(res.statusCode).toEqual(401);
 			expect(res.body).not.toHaveProperty('token');
-			expect(res.body.error).toContain('Invalid Credentials');
+			expect(res.body.errors[0].msg).toContain('Invalid credentials');
 		});
 
 		it('should return 400 if email or password missing', async () => {
@@ -115,7 +113,7 @@ describe('User API Routes', () => {
 				.post('/api/users/login')
 				.send({ email: userData.email }); // Missing password
 			expect(res.statusCode).toEqual(400);
-			expect(res.body.error).toContain('Password is required');
+			expect(res.body.errors[0].msg).toContain('Password is required');
 		});
 	});
 
@@ -144,7 +142,7 @@ describe('User API Routes', () => {
 		it('should return 401 if no token is provided', async () => {
 			const res = await request(app).get('/api/users/me');
 			expect(res.statusCode).toEqual(401);
-			expect(res.body.error).toContain('No token');
+			expect(res.body.error).toContain('Not authorized, no token');
 		});
 
 		it('should return 401 if token is invalid or expired', async () => {
@@ -153,7 +151,7 @@ describe('User API Routes', () => {
 				.get('/api/users/me')
 				.set('Authorization', invalidToken);
 			expect(res.statusCode).toEqual(401);
-			expect(res.body.error).toContain('Invalid token'); // Or "token failed" etc.
+			expect(res.body.error).toContain('Not authorized, invalid token'); // Or "token failed" etc.
 		});
 	});
 });
