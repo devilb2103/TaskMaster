@@ -30,3 +30,4 @@ Thumbs.db
 /backups/
 
 # DO NOT ignore config/config.js (it reads .env but isn't sensitive itself)
+.qodo
