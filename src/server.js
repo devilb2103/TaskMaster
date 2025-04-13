@@ -1,16 +1,12 @@
 // src/server.js
-// (Should match the state from the previous response for Commit 21)
 const app = require('./app');
-const config = require('../config/config');
+const config = require('../config/config'); // Import the new config object
 
-const PORT = config.port || 3000;
+// Use config.port and config.nodeEnv instead of process.env
+const PORT = config.port;
 
 const server = app.listen(PORT, () => {
-	console.log(
-		`Server running in ${
-			config.nodeEnv || 'development'
-		} mode on port ${PORT}`
-	);
+	console.log(`Server running in ${config.nodeEnv} mode on port ${PORT}`); // Use config values
 });
 
 process.on('unhandledRejection', (err, promise) => {

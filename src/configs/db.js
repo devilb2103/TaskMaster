@@ -1,28 +1,18 @@
-// config/db.js (Created by Bob - Commit 3)
+// config/db.js
 const mongoose = require('mongoose');
-// const config = require('./config'); // Or use process.env directly
+const config = require('./config'); // Import the new config object
 
 const connectDB = async () => {
 	try {
-		// const mongoURI = config.mongoURI || process.env.MONGO_URI;
-		const mongoURI = process.env.MONGO_URI; // Get URI from environment
-
-		if (!mongoURI) {
-			console.error('FATAL ERROR: MONGO_URI is not defined.');
-			process.exit(1);
-		}
-
-		await mongoose.connect(mongoURI, {
+		// Use config.mongoURI instead of process.env.MONGO_URI
+		await mongoose.connect(config.mongoURI, {
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
-			// Mongoose 6 doesn't need these anymore:
-			// useCreateIndex: true,
-			// useFindAndModify: false
 		});
 		console.log('MongoDB Connected...');
 	} catch (err) {
 		console.error('MongoDB Connection Error:', err.message);
-		process.exit(1); // Exit process with failure
+		process.exit(1);
 	}
 };
 
