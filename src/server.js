@@ -17,3 +17,5 @@ app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
 });
 
+app.use('/api/users', require('../src/routes/users'));
+app.use('/api/tasks', require('../src/routes/tasks')); // Mount task routes
