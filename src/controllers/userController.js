@@ -93,9 +93,22 @@ const getMe = async (req, res) => {
     res.json(req.user);
 };
 
+// --- Start: Added in Commit 38 ---
+// @desc    Logout user (Conceptual)
+// @route   POST /api/users/logout
+// @access  Private
+const logoutUser = (req, res) => {
+    // For stateless JWT, the primary action is client-side (deleting the token).
+    // This endpoint confirms the intention and allows for potential future logic
+    // like adding the token to a blacklist if implementing stateful sessions.
+    res.status(200).json({ message: 'Logout successful. Please clear token client-side.' });
+};
+// --- End: Added in Commit 38 ---
+
 
 module.exports = {
     registerUser,
     loginUser,
     getMe,
+    logoutUser, // <-- Export the new function
 };

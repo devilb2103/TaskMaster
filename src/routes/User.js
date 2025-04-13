@@ -7,6 +7,7 @@ const {
     registerUser,
     loginUser,
     getMe,
+    logoutUser,
 } = require('../controllers/userController');
 
 const router = express.Router();
@@ -43,6 +44,16 @@ router.get(
     protect, // Middleware applied here
     getMe // Use the controller function
 );
+// --- Start: Added in Commit 38 ---
+// @route   POST api/users/logout
+// @desc    Logout user (clears client token conceptually)
+// @access  Private
+router.post(
+  '/logout',
+  protect, // Requires user to be logged in to log out
+  logoutUser // Use the controller function
+);
+// --- End: Added in Commit 38 ---
 
 
 module.exports = router;
