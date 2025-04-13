@@ -1,28 +1,19 @@
 // src/server.js
-require('dotenv').config();
-const express = require('express');
-const connectDB = require('../config/db');
-const errorHandler = require('../src/middleware/errorHandler');
+// (Should match the state from the previous response for Commit 21)
+const app = require('./app');
+const config = require('../config/config');
 
-const app = express();
-app.use(express.json());
-const PORT = process.env.PORT || 3000;
-connectDB();
+const PORT = config.port || 3000;
 
-app.use(express.json()); // Middleware to parse JSON bodies
-
-app.use('/api/users', require('../src/routes/users'));
-app.use('/api/tasks', require('../src/routes/tasks'));
-
-app.get('/', (req, res) => {
-	res.send('TaskMaster API Running!');
+const server = app.listen(PORT, () => {
+	console.log(
+		`Server running in ${
+			config.nodeEnv || 'development'
+		} mode on port ${PORT}`
+	);
 });
 
-app.use('/api/users', require('../src/routes/users'));
-app.use('/api/tasks', require('../src/routes/tasks')); // Mount task routes
-
-app.use(errorHandler);
-
-app.listen(PORT, () => {
-	console.log(`Server running on port ${PORT}`);
+process.on('unhandledRejection', (err, promise) => {
+	console.error(`Unhandled Rejection: ${err.message}`);
+	server.close(() => process.exit(1));
 });
