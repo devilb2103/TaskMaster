@@ -10,6 +10,12 @@ const TaskSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  status: { // Add status field
+    type: String,
+    required: true,
+    enum: ['pending', 'in-progress', 'completed'], // Define allowed values
+    default: 'pending',
+  },
   owner: { // Add owner field
     type: mongoose.Schema.Types.ObjectId,
     required: true,
