@@ -10,6 +10,11 @@ const TaskSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  owner: { // Add owner field
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User', // Reference the User model
+  },
   createdAt: {
     type: Date,
     default: Date.now,
