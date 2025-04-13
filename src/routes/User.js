@@ -1,59 +1,55 @@
 // src/routes/users.js
 const express = require('express');
-const { check } = require('express-validator'); // Keep validator check definitions here
-const protect = require('../middleware/auth');
-// Import controller functions
+// Import check from express-validator
+const { check } = require('express-validator');
+const protect = require('../middleware/auth'); // Assuming protect middleware exists
 const {
-    registerUser,
-    loginUser,
-    getMe,
-    logoutUser,
-} = require('../controllers/userController');
+  registerUser,
+  loginUser,
+  getUserProfile,
+  logoutUser, // Assuming logoutUser controller exists
+  // updateUserProfile, // Example placeholder if update route exists
+} = require('../controllers/userController'); // Assuming controllers exist
 
 const router = express.Router();
 
-// --- Routes now point to controller functions ---
+// --- Validation rules for POST /api/users/register ---
+const registerUserValidation = [
+  check('name', 'Name is required and cannot be empty') // Improved message
+    .not().isEmpty()
+    .trim(),
+  check('email', 'Please include a valid email address') // Improved message
+    .isEmail()
+    .normalizeEmail(), // Sanitize email
+  check('password', 'Password is required and must be at least 6 characters long') // Improved message
+    .isLength({ min: 6 }),
+];
 
-// @route   POST api/users/register
-router.post(
-  '/register',
-  [ // Validation definitions stay with the route
-    check('name', 'Name is required').not().isEmpty(),
-    check('email', 'Please include a valid email').isEmail(),
-    check(
-      'password',
-      'Please enter a password with 6 or more characters'
-    ).isLength({ min: 6 }),
-  ],
-  registerUser // Use the controller function
-);
+// --- Validation rules for POST /api/users/login ---
+const loginUserValidation = [
+  check('email', 'Please provide a valid email address') // Improved message
+    .isEmail()
+    .normalizeEmail(),
+  check('password', 'Password is required') // Improved message (just check existence)
+    .exists(), // Check if password field is present in the request body
+];
 
-// @route   POST api/users/login
-router.post(
-  '/login',
-  [ // Validation definitions stay with the route
-    check('email', 'Please include a valid email').isEmail(),
-    check('password', 'Password is required').exists(),
-  ],
-  loginUser // Use the controller function
-);
+// --- Routes ---
+// Use the defined validation middleware arrays
+router.post('/register', registerUserValidation, registerUser);
 
-// @route   GET api/users/me
-router.get(
-    '/me',
-    protect, // Middleware applied here
-    getMe // Use the controller function
-);
-// --- Start: Added in Commit 38 ---
-// @route   POST api/users/logout
-// @desc    Logout user (clears client token conceptually)
-// @access  Private
-router.post(
-  '/logout',
-  protect, // Requires user to be logged in to log out
-  logoutUser // Use the controller function
-);
-// --- End: Added in Commit 38 ---
+router.post('/login', loginUserValidation, loginUser);
 
+router.get('/me', protect, getUserProfile); // No body validation needed
+
+router.post('/logout', protect, logoutUser); // No body validation needed
+
+// Example placeholder for potential update route
+// const updateUserValidation = [
+//   protect,
+//   check('name', 'Name cannot be empty if provided').optional().not().isEmpty().trim(),
+//   check('email', 'Please provide a valid email address if updating').optional().isEmail().normalizeEmail(),
+// ];
+// router.put('/me', updateUserValidation, updateUserProfile);
 
 module.exports = router;
