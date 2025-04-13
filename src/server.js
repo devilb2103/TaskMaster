@@ -1,6 +1,6 @@
 // src/server.js
 const app = require('./app');
-const config = require('../config/config'); // Import the new config object
+const config = require('./config/config'); // Import the new config object
 
 // Use config.port and config.nodeEnv instead of process.env
 const PORT = config.port;
