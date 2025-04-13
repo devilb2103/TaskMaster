@@ -1,6 +1,6 @@
 // src/models/User.js
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // <-- Added bcryptjs import
+const bcrypt = require('bcryptjs'); // bcryptjs was already imported for pre-save hook
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -26,26 +26,26 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-// --- Start: Added in Commit 9 ---
-// Mongoose middleware to hash password before saving
+// Mongoose middleware to hash password before saving (from Commit 9)
 UserSchema.pre('save', async function (next) {
-  // 'this' refers to the document being saved
-  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) {
-    return next(); // Skip hashing if password hasn't changed
+    return next();
   }
-
   try {
-    // Generate a salt
-    const salt = await bcrypt.genSalt(10); // 10 rounds is generally recommended
-    // Hash the password using the generated salt
+    const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next(); // Proceed with the save operation
+    next();
   } catch (error) {
-    next(error); // Pass any error during hashing to the next middleware
+    next(error);
   }
 });
-// --- End: Added in Commit 9 ---
 
+// --- Start: Added in Commit 11 ---
+// Method to compare entered password with the hashed password in the database
+UserSchema.methods.matchPassword = async function (enteredPassword) {
+  // 'this.password' refers to the hashed password stored for this user document
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+// --- End: Added in Commit 11 ---
 
 module.exports = mongoose.model('User', UserSchema);

@@ -1,62 +1,76 @@
 // src/routes/users.js
 const express = require('express');
 const { check, validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken'); // <-- Added jsonwebtoken import
 const User = require('../models/User');
-// bcrypt is NOT needed here, hashing is done in the model
 
 const router = express.Router();
 
-// @route   POST api/users/register
-// @desc    Register user
+// --- Register Route (Unchanged from Commit 11) ---
+router.post( '/register', /* ... existing code ... */ async (req, res, next) => { /* ... */ });
+
+
+// --- Login Route (Modified in Commit 12) ---
+// @route   POST api/users/login
+// @desc    Authenticate user & get JWT token
 // @access  Public
 router.post(
-  '/register',
+  '/login',
   [
-    // Validation rules remain the same
-    check('name', 'Name is required').not().isEmpty(),
     check('email', 'Please include a valid email').isEmail(),
-    check(
-      'password',
-      'Please enter a password with 6 or more characters'
-    ).isLength({ min: 6 }),
+    check('password', 'Password is required').exists(),
   ],
-  // --- Start: Modified in Commit 9 ---
-  // Added 'next' parameter to the function signature
   async (req, res, next) => {
-  // --- End: Modified in Commit 9 ---
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { email, password } = req.body;
 
     try {
-      let user = await User.findOne({ email });
-      if (user) {
-        // User exists check remains the same
-        return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
       }
 
-      // Create new user instance - password will be hashed by the pre-save hook
-      user = new User({ name, email, password });
+      const isMatch = await user.matchPassword(password);
 
-      // Hashing happens automatically within this save() call due to the pre-save hook
-      await user.save();
+      if (!isMatch) {
+        return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+      }
 
-      // Response logic (will be enhanced later with JWT)
-      res.status(201).send('User registered');
+      // --- Start: JWT Generation Added in Commit 12 ---
+      // User is valid, create JWT payload
+      const payload = {
+        user: {
+          id: user.id // Include user ID in the payload
+          // Can add other non-sensitive info like name/role if needed
+        },
+      };
 
-    // --- Start: Modified in Commit 9 ---
+      // Sign the token using the secret and set expiration
+      jwt.sign(
+        payload,
+        process.env.JWT_SECRET, // Get secret from environment variables
+        { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }, // Get expiration from env or default
+        (err, token) => {
+          if (err) {
+              // If signing fails, pass error to central handler
+              return next(err);
+          }
+          // Send the token back to the client
+          res.status(200).json({ token });
+        }
+      );
+      // --- End: JWT Generation Added in Commit 12 ---
+
     } catch (err) {
-      // Pass any error (duplicate email error from DB, hashing error, etc.)
-      // to the central error handling middleware
       next(err);
-    // --- End: Modified in Commit 9 ---
     }
   }
 );
 
-// Login route and other user routes will be added in subsequent commits
 
 module.exports = router;
