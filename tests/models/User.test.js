@@ -127,6 +127,8 @@ describe('User Model Test', () => {
 		}
 		expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
 		expect(err.errors.password).toBeDefined();
-		expect(err.errors.password.message).toContain('6 or more characters');
+		expect(err.errors.password.message).toMatch(
+			/shorter than the minimum allowed length \(6\)/
+		);
 	});
 });
