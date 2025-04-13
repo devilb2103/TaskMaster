@@ -1,0 +1,187 @@
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git fetch origin
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git branch
+* (HEAD detached at origin/1-fix-jest-setupfilesafterenv-path-mismatch)
+  master
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git branch -a
+* (HEAD detached at origin/1-fix-jest-setupfilesafterenv-path-mismatch)
+  master
+  remotes/origin/1-fix-jest-setupfilesafterenv-path-mismatch
+  remotes/origin/master
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git checkout master
+Switched to branch 'master'
+M       .env
+M       package-lock.json
+D       src/tests/models/Tasks.test.js
+D       src/tests/models/User.test.js
+D       src/tests/routes/tasks.test.js
+D       src/tests/routes/users.test.js
+D       src/tests/setup.js
+D       src/tests/tasks.integration.test.js
+Your branch is up to date with 'origin/master'.
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git branch -a      
+* master
+  remotes/origin/1-fix-jest-setupfilesafterenv-path-mismatch
+  remotes/origin/master
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git checkout origin
+error: pathspec 'origin' did not match any file(s) known to git
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git fetch origin
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git branch -a      
+* master
+  remotes/origin/1-fix-jest-setupfilesafterenv-path-mismatch
+  remotes/origin/master
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git checkout 1-fix-jest-setupfilesafterenv-path-mismatch
+Switched to a new branch '1-fix-jest-setupfilesafterenv-path-mismatch'
+M       .env
+M       package-lock.json
+D       src/tests/models/Tasks.test.js
+D       src/tests/models/User.test.js
+D       src/tests/routes/tasks.test.js
+D       src/tests/routes/users.test.js
+D       src/tests/setup.js
+D       src/tests/tasks.integration.test.js
+branch '1-fix-jest-setupfilesafterenv-path-mismatch' set up to track 'origin/1-fix-jest-setupfilesafterenv-path-mismatch'.
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git branch
+* 1-fix-jest-setupfilesafterenv-path-mismatch
+  master
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git add .
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git status
+On branch 1-fix-jest-setupfilesafterenv-path-mismatch
+Your branch is up to date with 'origin/1-fix-jest-setupfilesafterenv-path-mismatch'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   .env
+        new file:   CLI_History.txt
+        modified:   package-lock.json
+        renamed:    src/tests/models/Tasks.test.js -> tests/models/Tasks.test.js
+        renamed:    src/tests/models/User.test.js -> tests/models/User.test.js
+        renamed:    src/tests/routes/tasks.test.js -> tests/routes/tasks.test.js
+        renamed:    src/tests/routes/users.test.js -> tests/routes/users.test.js
+        renamed:    src/tests/setup.js -> tests/setup.js
+        renamed:    src/tests/tasks.integration.test.js -> tests/tasks.integration.test.js
+
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> npm test
+
+> taskmaster-api@1.0.0 test
+> jest
+
+ FAIL  tests/models/Tasks.test.js
+  ● Test suite failed to run
+                                                                                                                                                                                                                          
+    Cannot find module '../../models/Task' from 'tests/models/Tasks.test.js'                                                                                                                                              
+                                                                                                                                                                                                                          
+      1 | // tests/models/Task.test.js                                                                                                                                                                                    
+      2 | const mongoose = require('mongoose');                                                                                                                                                                           
+    > 3 | const Task = require('../../models/Task');                                                                                                                                                                      
+        |              ^                                                                                                                                                                                                  
+      4 | const User = require('../../models/User'); // Needed for owner ref                                                                                                                                              
+      5 |                                                                                                                                                                                                                 
+      6 | describe('Task Model Test', () => {                                                                                                                                                                             
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.require (tests/models/Tasks.test.js:3:14)
+
+
+ RUNS  tests/models/User.test.js                                                                                                                                                                                          
+ RUNS  tests/routes/users.test.js                                                                                                                                                                                         
+ RUNS  tests/routes/tasks.test.js                                                                                                                                                                                         
+ RUNS  tests/models/Tasks.test.js                                                                                                                                                                                         
+ RUNS  tests/tasks.integration.test.js                                                                                                                                                                                    
+
+Test Suites: 0 of 5 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        1 s, estimated 6 s
+████████████████████████████████████████^C^CTerminate batch job (Y/N)? y
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git status
+On branch 1-fix-jest-setupfilesafterenv-path-mismatch
+Your branch is up to date with 'origin/1-fix-jest-setupfilesafterenv-path-mismatch'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   .env
+        new file:   CLI_History.txt
+        modified:   package-lock.json
+        renamed:    src/tests/models/Tasks.test.js -> tests/models/Tasks.test.js
+        renamed:    src/tests/models/User.test.js -> tests/models/User.test.js
+        renamed:    src/tests/routes/tasks.test.js -> tests/routes/tasks.test.js
+        renamed:    src/tests/routes/users.test.js -> tests/routes/users.test.js
+        renamed:    src/tests/setup.js -> tests/setup.js
+        renamed:    src/tests/tasks.integration.test.js -> tests/tasks.integration.test.js
+
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git commit
+[1-fix-jest-setupfilesafterenv-path-mismatch e748cb5] Fixed issue #1
+ 9 files changed, 6161 insertions(+), 523 deletions(-)
+ create mode 100644 CLI_History.txt
+ rename {src/tests => tests}/models/Tasks.test.js (100%)
+ rename {src/tests => tests}/models/User.test.js (100%)
+ rename {src/tests => tests}/routes/tasks.test.js (100%)
+ rename {src/tests => tests}/routes/users.test.js (100%)
+ rename {src/tests => tests}/setup.js (100%)
+ rename {src/tests => tests}/tasks.integration.test.js (100%)
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git push
+Enumerating objects: 10, done.
+Counting objects: 100% (10/10), done.
+Delta compression using up to 32 threads
+Compressing objects: 100% (6/6), done.
+Writing objects: 100% (6/6), 64.10 KiB | 16.03 MiB/s, done.
+Total 6 (delta 2), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/devilb2103/TaskMaster
+   0ef66c7..e748cb5  1-fix-jest-setupfilesafterenv-path-mismatch -> 1-fix-jest-setupfilesafterenv-path-mismatch
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git status
+On branch 1-fix-jest-setupfilesafterenv-path-mismatch
+Your branch is up to date with 'origin/1-fix-jest-setupfilesafterenv-path-mismatch'.
+
+nothing to commit, working tree clean
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git checkout master
+Switched to branch 'master'
+Your branch is up to date with 'origin/master'.
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git push origin --delete 1-fix-jest-setupfilesafterenv-path-mismatch
+To https://github.com/devilb2103/TaskMaster
+ - [deleted]         1-fix-jest-setupfilesafterenv-path-mismatch
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git branch
+  1-fix-jest-setupfilesafterenv-path-mismatch
+* master
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git branch -a
+  1-fix-jest-setupfilesafterenv-path-mismatch
+* master
+  remotes/origin/master
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git branch -d 1-fix-jest-setupfilesafterenv-path-mismatch
+error: The branch '1-fix-jest-setupfilesafterenv-path-mismatch' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D 1-fix-jest-setupfilesafterenv-path-mismatch'.
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git branch -D 1-fix-jest-setupfilesafterenv-path-mismatch
+Deleted branch 1-fix-jest-setupfilesafterenv-path-mismatch (was e748cb5).
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git status
+On branch master
+Your branch is up to date with 'origin/master'.
+
+nothing to commit, working tree clean
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> git pull
+remote: Enumerating objects: 11, done.
+remote: Counting objects: 100% (11/11), done.
+remote: Compressing objects: 100% (5/5), done.
+remote: Total 7 (delta 2), reused 6 (delta 2), pack-reused 0 (from 0)
+Unpacking objects: 100% (7/7), 64.97 KiB | 7.22 MiB/s, done.
+From https://github.com/devilb2103/TaskMaster
+   0ef66c7..347892b  master     -> origin/master
+Updating 0ef66c7..347892b
+Fast-forward
+ .env                                           |    2 +-
+ CLI_History.txt                                |  Bin 0 -> 51904 bytes
+ package-lock.json                              | 6682 ++++++++++++++++++++++--
+ {src/tests => tests}/models/Tasks.test.js      |    0
+ {src/tests => tests}/models/User.test.js       |    0
+ {src/tests => tests}/routes/tasks.test.js      |    0
+ {src/tests => tests}/routes/users.test.js      |    0
+ {src/tests => tests}/setup.js                  |    0
+ {src/tests => tests}/tasks.integration.test.js |    0
+ 9 files changed, 6161 insertions(+), 523 deletions(-)
+ create mode 100644 CLI_History.txt
+ rename {src/tests => tests}/models/Tasks.test.js (100%)
+ rename {src/tests => tests}/models/User.test.js (100%)
+ rename {src/tests => tests}/routes/tasks.test.js (100%)
+ rename {src/tests => tests}/routes/users.test.js (100%)
+ rename {src/tests => tests}/setup.js (100%)
+ rename {src/tests => tests}/tasks.integration.test.js (100%)
+PS C:\Users\devbh\OneDrive\Desktop\College\OST Project> 
