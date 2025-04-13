@@ -1,40 +1,40 @@
 /**
  * File: src/routes/tasks.js
  * =========================
- * STATE AFTER BOB'S COMMIT 17: 'feat: Implement GET single task by ID'
+ * STATE AFTER BOB'S COMMIT 18: 'feat: Implement UPDATE task by ID'
  * =========================
  *
  * History incorporated into this file state:
- * - Commit 7 (Bob): Added initial POST / route (without auth/owner)
- * - Commit 10 (Bob): Added initial GET / route (fetches all tasks)
+ * - Commit 7 (Bob): Added initial POST / route.
+ * - Commit 10 (Bob): Added initial GET / route.
  * - Commit 14 (Bob): Protected POST /, associated task owner.
  * - Commit 16 (Bob): Protected GET /, filtered GET / by task owner.
- * - Commit 17 (Bob): Added GET /:id route, protected it, added ownership check.
+ * - Commit 17 (Bob): Added GET /:id route, protected, checked ownership.
+ * - Commit 18 (Bob): Added PUT /:id route, protected, checked ownership, allows updates.
  *
- * Note: Assumes 'Task' model has 'owner' field (added Commit 15 - Charlie).
- *       Assumes 'protect' middleware exists (added Commit 13 - Alice).
+ * Note: Assumes 'Task' model has necessary fields ('owner', 'description', 'status'/'completed').
+ *       Assumes 'protect' middleware exists.
  *       Assumes centralized error handling via 'next(err)' is used.
  */
 
 // Import required modules
 const express = require('express');
-const { check, validationResult } = require('express-validator'); // Used since Commit 7
-const Task = require('../models/Task'); // Model defined in Commit 5 (Bob), owner added Commit 15 (Charlie)
-const protect = require('../middleware/auth'); // Auth middleware from Commit 13 (Alice)
+const { check, validationResult } = require('express-validator');
+const Task = require('../models/Task');
+const protect = require('../middleware/auth');
 
 // Initialize router
 const router = express.Router();
 
-// --- Route from Commit 7, Modified in Commit 14 ---
 // @route   POST api/tasks
 // @desc    Create a task
-// @access  Private (Enforced since Commit 14)
+// @access  Private
 router.post(
   '/',
   [
-    protect, // Apply the 'protect' middleware
+    protect,
     check('description', 'Description is required').not().isEmpty(),
-    // Add validation for other fields like 'status' if they exist by now
+    // Add other necessary validations (e.g., for status if required on create)
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
@@ -43,81 +43,142 @@ router.post(
     }
 
     try {
-      // User ID from protect middleware
       const newTask = new Task({
         description: req.body.description,
-        // status: req.body.status || 'pending', // Example if status model field exists
+        status: req.body.status || 'pending', // Example: Use default if not provided
         owner: req.user.id // Associate task with logged-in user's ID
       });
 
       const task = await newTask.save();
       res.status(201).json(task);
     } catch (err) {
-      next(err); // Pass errors to central handler
+      next(err);
     }
   }
 );
-// --- End Route from Commit 7 (Modified) ---
 
-// --- Route from Commit 10, Modified in Commit 16 ---
 // @route   GET api/tasks
 // @desc    Get all tasks for the logged-in user
-// @access  Private (Enforced since Commit 16)
-router.get('/', protect, async (req, res, next) => { // 'protect' added in Commit 16
+// @access  Private
+router.get('/', protect, async (req, res, next) => {
   try {
-    // Find tasks only for the logged-in user (filter added in Commit 16)
+    // Find tasks only for the logged-in user
     const tasks = await Task.find({ owner: req.user.id });
+    // Add filtering/sorting/pagination logic here later (Commits 26, 27, 37)
     res.json(tasks);
   } catch (err) {
-    next(err); // Pass errors to central handler
+    next(err);
   }
 });
-// --- End Route from Commit 10 (Modified) ---
 
-// --- Route added in Commit 17 (Bob) ---
 // @route   GET api/tasks/:id
 // @desc    Get single task by ID
 // @access  Private
-router.get('/:id', protect, async (req, res, next) => { // Added protect middleware
+router.get('/:id', protect, async (req, res, next) => {
   try {
-    // Find the task by the ID provided in the URL parameters
     const task = await Task.findById(req.params.id);
 
-    // Check if a task with that ID exists
     if (!task) {
       return res.status(404).json({ msg: 'Task not found' });
     }
 
-    // IMPORTANT: Check if the found task belongs to the logged-in user
-    // Comparing ObjectId (task.owner) with string (req.user.id)
+    // Check ownership
     if (task.owner.toString() !== req.user.id) {
-      // If owner doesn't match, user is not authorized to see this task
       return res.status(401).json({ msg: 'User not authorized' });
     }
 
-    // If task exists and user is authorized, return the task
     res.json(task);
 
   } catch (err) {
-    // Handle potential errors, specifically invalid ObjectId format
-    // Mongoose throws CastError for invalid IDs, often with kind === 'ObjectId'
     if (err.kind === 'ObjectId') {
-      // Treat invalid ID format as 'Not Found'
       return res.status(404).json({ msg: 'Task not found (invalid ID format)' });
     }
-    // Pass any other errors to the central error handler
     next(err);
   }
 });
-// --- End Route added in Commit 17 ---
 
+// --- Route added in Commit 18 (Bob) ---
+// @route   PUT api/tasks/:id
+// @desc    Update a task
+// @access  Private
+router.put(
+  '/:id',
+  [ // Middleware array for PUT request
+    protect, // Ensure user is authenticated
+    // Optional: Add validation rules for fields being updated
+    check('description', 'Description cannot be empty if provided').optional().not().isEmpty(),
+    check('status', 'Invalid status provided').optional().isIn(['pending', 'in-progress', 'completed']) // Example status validation
+  ],
+  async (req, res, next) => {
+    // Run validation checks
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Extract fields to update from request body
+    const { description, status, completed } = req.body; // Adjust based on your Task model fields
+    const taskFields = {};
+    // Build the update object only with fields that were actually provided
+    if (description !== undefined) taskFields.description = description;
+    if (status !== undefined) taskFields.status = status;
+    if (completed !== undefined) taskFields.completed = completed; // If using 'completed' boolean
+
+    // Prevent updating the owner field
+    if (req.body.owner) {
+        return res.status(400).json({ msg: 'Cannot transfer task ownership via update.' });
+    }
+
+    try {
+      // Find the task by ID first to check ownership
+      let task = await Task.findById(req.params.id);
+
+      // Check if task exists
+      if (!task) {
+        return res.status(404).json({ msg: 'Task not found' });
+      }
+
+      // Check if the logged-in user owns the task
+      if (task.owner.toString() !== req.user.id) {
+        return res.status(401).json({ msg: 'User not authorized' });
+      }
+
+      // If ownership is verified, proceed with the update
+      task = await Task.findByIdAndUpdate(
+        req.params.id, // ID of the task to update
+        { $set: taskFields }, // Use $set to update only provided fields
+        { new: true, runValidators: true } // Options: return the modified document, run schema validators
+      );
+
+      // Should not happen if findById found it, but as a safeguard
+      if (!task) {
+          return res.status(404).json({ msg: 'Task not found after update attempt.'})
+      }
+
+      // Return the updated task
+      res.json(task);
+
+    } catch (err) {
+      // Handle potential errors like invalid ObjectId format
+      if (err.kind === 'ObjectId') {
+        return res.status(404).json({ msg: 'Task not found (invalid ID format)' });
+      }
+      // Handle validation errors from Mongoose during update
+      if (err.name === 'ValidationError') {
+        return res.status(400).json({ msg: 'Validation failed', errors: err.errors });
+      }
+      // Pass other errors to the central handler
+      next(err);
+    }
+  }
+);
+// --- End Route added in Commit 18 ---
 
 /* --- Placeholder Comment ---
  * More routes will be added below in subsequent commits:
- * - PUT /api/tasks/:id (Commit 18 - Bob)
  * - DELETE /api/tasks/:id (Commit 19 - Bob)
  * --- End Placeholder Comment ---
  */
 
-// Export the router to be mounted in the main application file
+// Export the router
 module.exports = router;
