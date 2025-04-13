@@ -42,9 +42,20 @@ router.post(
 router.get('/', protect, async (req, res, next) => { // Add next parameter
     try {
       const tasks = await Task.find({ owner: req.user.id }); // Fetches all tasks for now
+      if (!task) {
+        return res.status(404).json({ msg: 'Task not found' });
+      }
+  
+      // Check if the task belongs to the logged-in user
+      if (task.owner.toString() !== req.user.id) {
+        return res.status(401).json({ msg: 'User not authorized' });
+      }
       res.json(tasks);
     } catch (err) {
       console.error(err.message); // Keep specific log for now
+      if (err.kind === 'ObjectId') {
+        return res.status(404).json({ msg: 'Task not found (invalid ID format)' });
+      }
       next(err); // Pass error to central handler
     }
   });
